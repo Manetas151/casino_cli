@@ -1,4 +1,4 @@
-from blackjack.cards import Card
+from casino.cards import Card
 from typing import Optional
 
 

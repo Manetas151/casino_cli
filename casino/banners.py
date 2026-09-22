@@ -1,7 +1,7 @@
 import time
 
-from blackjack.layout import SCREEN_COLS, SCREEN_ROWS
-from blackjack.screen import clear_and_home
+from casino.layout import SCREEN_COLS, SCREEN_ROWS
+from casino.screen import clear_and_home
 
 BANNER_DELAY = 1.8
 

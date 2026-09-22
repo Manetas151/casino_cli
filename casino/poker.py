@@ -2,7 +2,7 @@ from collections import Counter
 from enum import IntEnum
 from itertools import combinations
 
-from blackjack.cards import Card, Rank
+from casino.cards import Card, Rank
 
 RANK_VALUE = {
     Rank.TWO: 2, Rank.THREE: 3, Rank.FOUR: 4, Rank.FIVE: 5, Rank.SIX: 6,

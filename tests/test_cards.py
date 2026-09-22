@@ -1,5 +1,5 @@
 import unittest
-from blackjack.cards import Deck, Card, Rank, Suit
+from casino.cards import Deck, Card, Rank, Suit
 
 
 class TestDeck(unittest.TestCase):

@@ -1,7 +1,7 @@
 import time
 
-from blackjack.cards import Card, Deck
-from blackjack.layout import (
+from casino.cards import Card, Deck
+from casino.layout import (
     SCREEN_COLS,
     SCREEN_ROWS,
     CARD_DEAL_DELAY,
@@ -12,7 +12,7 @@ from blackjack.layout import (
     BOTTOM_BOX,
     INSET_BOX,
 )
-from blackjack.screen import (
+from casino.screen import (
     Screen,
     move_cursor,
     clear_to_eol,

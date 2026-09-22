@@ -9,7 +9,7 @@ A terminal-based casino simulator written in Python (stdlib only), played on a f
 No external dependencies needed (Python 3.10+ for `list[Card]`-style type hints). A terminal at least **120 columns x 40 rows**, ANSI/VT100-capable and UTF-8-capable.
 
 ```bash
-python3 -m blackjack
+python3 -m casino
 ```
 
 You'll be asked which game to play, then for your name and starting bankroll, before the table view takes over.
@@ -67,7 +67,7 @@ Tests cover:
 
 ### Table Rendering
 
-The game draws a fixed 120x40 full-screen frame using ANSI cursor addressing (`blackjack/screen.py`, shared region geometry in `blackjack/layout.py`). Blackjack (`blackjack/table.py`) and Hold'em (`blackjack/holdem_table.py`) reuse the same six regions but repurpose them: in Hold'em, the big top box that shows the dealer's hand in Blackjack instead shows the community cards, and the narrow top sidebar that shows Blackjack's dealer status instead shows the dealer's hidden hole cards. Every state change (a card dealt, a choice made) triggers a full redraw. If your terminal is smaller than 120x40, the game exits at startup with a plain-text message asking you to enlarge it.
+The game draws a fixed 120x40 full-screen frame using ANSI cursor addressing (`casino/screen.py`, shared region geometry in `casino/layout.py`). Blackjack (`casino/table.py`) and Hold'em (`casino/holdem_table.py`) reuse the same six regions but repurpose them: in Hold'em, the big top box that shows the dealer's hand in Blackjack instead shows the community cards, and the narrow top sidebar that shows Blackjack's dealer status instead shows the dealer's hidden hole cards. Every state change (a card dealt, a choice made) triggers a full redraw. If your terminal is smaller than 120x40, the game exits at startup with a plain-text message asking you to enlarge it.
 
 ### Card Dealing Delay
 

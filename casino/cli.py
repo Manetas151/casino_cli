@@ -1,9 +1,9 @@
 import sys
 
-from blackjack.cards import Deck, Rank
-from blackjack.hand import Hand
-from blackjack.player import Player
-from blackjack.game import (
+from casino.cards import Deck, Rank
+from casino.hand import Hand
+from casino.player import Player
+from casino.game import (
     deal_initial_hands,
     offer_insurance,
     resolve_insurance,
@@ -11,10 +11,10 @@ from blackjack.game import (
     play_dealer_hand,
     settle_round,
 )
-from blackjack.table import redraw_table, prompt_in_frame, SCREEN_ROWS
-from blackjack.screen import check_terminal_size, move_cursor, show_cursor
-from blackjack.holdem_cli import run_holdem
-from blackjack.banners import show_banner
+from casino.table import redraw_table, prompt_in_frame, SCREEN_ROWS
+from casino.screen import check_terminal_size, move_cursor, show_cursor
+from casino.holdem_cli import run_holdem
+from casino.banners import show_banner
 
 OUTCOME_BANNER = {
     "BLACKJACK_WIN": "win",

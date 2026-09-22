@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from blackjack.hand import Hand
+from casino.hand import Hand
 
 
 @dataclass

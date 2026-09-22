@@ -1,9 +1,9 @@
 import time
 
-from blackjack.cards import Card, Deck
-from blackjack.hand import Hand
-from blackjack.player import Player
-from blackjack.layout import (
+from casino.cards import Card, Deck
+from casino.hand import Hand
+from casino.player import Player
+from casino.layout import (
     SCREEN_COLS,
     SCREEN_ROWS,
     CARD_DEAL_DELAY,
@@ -14,7 +14,7 @@ from blackjack.layout import (
     BOTTOM_BOX as PLAYER_BOX,
     INSET_BOX as AMOUNT_BOX,
 )
-from blackjack.screen import (
+from casino.screen import (
     Screen,
     move_cursor,
     clear_to_eol,

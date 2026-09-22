@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 
-from blackjack.cards import Card
-from blackjack.player import Player
-from blackjack.poker import (
+from casino.cards import Card
+from casino.player import Player
+from casino.poker import (
     HandRank,
     best_hand_from_7,
     dealer_qualifies,

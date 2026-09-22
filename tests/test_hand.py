@@ -1,6 +1,6 @@
 import unittest
-from blackjack.hand import Hand
-from blackjack.cards import Card, Rank, Suit
+from casino.hand import Hand
+from casino.cards import Card, Rank, Suit
 
 
 class TestHand(unittest.TestCase):

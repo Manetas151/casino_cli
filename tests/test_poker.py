@@ -1,7 +1,7 @@
 import unittest
 
-from blackjack.cards import Card, Rank, Suit
-from blackjack.poker import (
+from casino.cards import Card, Rank, Suit
+from casino.poker import (
     HandRank,
     evaluate_5,
     best_hand_from_7,

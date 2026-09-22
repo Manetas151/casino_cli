@@ -2,8 +2,8 @@ import re
 import shutil
 import sys
 
-from blackjack.cards import Card
-from blackjack.rendering import render_card
+from casino.cards import Card
+from casino.rendering import render_card
 
 ANSI_RE = re.compile(r"\033\[[0-9;]*m")
 

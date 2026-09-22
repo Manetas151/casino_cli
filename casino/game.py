@@ -1,8 +1,8 @@
 from collections import deque
-from blackjack.cards import Deck, Rank
-from blackjack.hand import Hand
-from blackjack.player import Player
-from blackjack.table import deal_card_with_delay, redraw_table, prompt_in_frame
+from casino.cards import Deck, Rank
+from casino.hand import Hand
+from casino.player import Player
+from casino.table import deal_card_with_delay, redraw_table, prompt_in_frame
 
 
 def deal_initial_hands(player: Player, dealer_hand: Hand, deck: Deck):
