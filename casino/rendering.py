@@ -6,9 +6,9 @@ def render_card(card: Optional[Card], face_down: bool = False) -> list[str]:
     if face_down or card is None:
         return [
             "┌───────┐",
-            "│░░░░░░░│",
-            "│░░░░░░░│",
-            "│░░░░░░░│",
+            "│◠◠◠◠◠◠◠│",
+            "│★★★⚜★★★│",
+            "│◡◡◡◡◡◡◡│",
             "└───────┘",
         ]
 

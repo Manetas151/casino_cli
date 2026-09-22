@@ -49,6 +49,9 @@ BANNERS = {
 
 
 def show_banner(kind: str, delay: float = BANNER_DELAY) -> None:
+
+    time.sleep(delay)
+
     art = BANNERS[kind]
     lines = art.strip("\n").split("\n")
     width = max(len(line) for line in lines)
