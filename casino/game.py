@@ -112,6 +112,9 @@ def play_player_hand_queue(player: Player, dealer_upcard_is_ace: bool, deck: Dec
 
 
 def play_dealer_hand(dealer_hand: Hand, deck: Deck, player: Player):
+    if all(hand.is_bust() for hand in player.hands):
+        return
+
     while True:
         total, is_soft = dealer_hand.value()
         if total > 21:
@@ -128,10 +131,10 @@ def settle_round(player: Player, dealer_hand: Hand) -> list[str]:
     for hand in player.hands:
         hand_total, _ = hand.value()
 
-        if dealer_total > 21:
-            outcome = "WIN"
-        elif hand_total > 21:
+        if hand_total > 21:
             outcome = "LOSS"
+        elif dealer_total > 21:
+            outcome = "WIN"
         elif hand_total == dealer_total:
             outcome = "PUSH"
         elif hand_total > dealer_total:
