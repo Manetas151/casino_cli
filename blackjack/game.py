@@ -121,8 +121,9 @@ def play_dealer_hand(dealer_hand: Hand, deck: Deck, player: Player):
         deal_card_with_delay(dealer_hand, deck, dealer_hand, player, hide_dealer_hole=False)
 
 
-def settle_round(player: Player, dealer_hand: Hand):
+def settle_round(player: Player, dealer_hand: Hand) -> list[str]:
     dealer_total, _ = dealer_hand.value()
+    outcomes = []
 
     for hand in player.hands:
         hand_total, _ = hand.value()
@@ -154,3 +155,7 @@ def settle_round(player: Player, dealer_hand: Hand):
             player.pushes += 1
         else:
             player.losses += 1
+
+        outcomes.append(outcome)
+
+    return outcomes

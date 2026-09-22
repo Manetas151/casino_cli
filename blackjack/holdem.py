@@ -38,15 +38,16 @@ def blind_multiplier(rank: HandRank, tiebreak: tuple[int, ...]) -> tuple[int, in
     return BLIND_PAYTABLE.get(rank)
 
 
-def settle_round(player: Player, state: HoldemState) -> tuple[str, str, str]:
+def settle_round(player: Player, state: HoldemState) -> tuple[str, str, str, str]:
     """Applies payouts to player.bankroll and updates wins/losses/pushes.
 
-    Returns (result_message, dealer_hand_description, player_hand_description).
+    Returns (result_message, dealer_hand_description, player_hand_description, outcome)
+    where outcome is one of "win", "lose", "draw".
     """
     if state.folded:
         player.losses += 1
         msg = f"You folded. Lost Ante (${state.ante}) and Blind (${state.blind})."
-        return msg, "", ""
+        return msg, "", "", "lose"
 
     player_rank, player_tiebreak, _ = best_hand_from_7(state.player_cards + state.community)
     dealer_rank, dealer_tiebreak, _ = best_hand_from_7(state.dealer_cards + state.community)
@@ -99,11 +100,14 @@ def settle_round(player: Player, state: HoldemState) -> tuple[str, str, str]:
 
     if result > 0:
         player.wins += 1
+        outcome = "win"
     elif result == 0:
         player.pushes += 1
+        outcome = "draw"
     else:
         player.losses += 1
+        outcome = "lose"
 
     header = f"You: {player_desc}  |  Dealer: {dealer_desc}"
     message = header + "\n" + " ".join(lines)
-    return message, dealer_desc, player_desc
+    return message, dealer_desc, player_desc, outcome

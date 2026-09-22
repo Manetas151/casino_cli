@@ -2,6 +2,7 @@ from blackjack.cards import Deck
 from blackjack.player import Player
 from blackjack.holdem import HoldemState, settle_round
 from blackjack.holdem_table import redraw_holdem_table, prompt_in_frame, deal_card_with_delay
+from blackjack.banners import show_banner
 
 
 def _make_redraw(player: Player, state: HoldemState):
@@ -142,7 +143,10 @@ def run_holdem(player: Player) -> None:
                     state.play_bet = ante
                     player.bankroll -= state.play_bet
 
-        message, dealer_desc, player_desc = settle_round(player, state)
+        message, dealer_desc, player_desc, outcome = settle_round(player, state)
+
+        show_banner(outcome)
+
         redraw(message=message, hide_dealer=state.folded, dealer_desc=dealer_desc, player_desc=player_desc)
         prompt_in_frame("Press Enter for next round...")
 

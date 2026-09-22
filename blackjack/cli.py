@@ -14,6 +14,14 @@ from blackjack.game import (
 from blackjack.table import redraw_table, prompt_in_frame, SCREEN_ROWS
 from blackjack.screen import check_terminal_size, move_cursor, show_cursor
 from blackjack.holdem_cli import run_holdem
+from blackjack.banners import show_banner
+
+OUTCOME_BANNER = {
+    "BLACKJACK_WIN": "win",
+    "WIN": "win",
+    "PUSH": "draw",
+    "LOSS": "lose",
+}
 
 
 def prompt_int(prompt_text: str, min_val: int = 0, max_val: int = None) -> int:
@@ -104,7 +112,10 @@ def run_blackjack(player: Player) -> None:
             redraw_table(dealer_hand, False, player, message="Dealer reveals hole card...")
             play_dealer_hand(dealer_hand, deck, player)
 
-        settle_round(player, dealer_hand)
+        outcomes = settle_round(player, dealer_hand)
+
+        for outcome in outcomes:
+            show_banner(OUTCOME_BANNER[outcome])
 
         redraw_table(
             dealer_hand,
