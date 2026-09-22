@@ -3,37 +3,31 @@ import time
 from blackjack.cards import Card, Deck
 from blackjack.hand import Hand
 from blackjack.player import Player
-from blackjack.rendering import render_card
+from blackjack.layout import (
+    SCREEN_COLS,
+    SCREEN_ROWS,
+    CARD_DEAL_DELAY,
+    TOP_BOX as DEALER_BOX,
+    TOP_SIDEBAR as DEALER_SIDEBAR,
+    PROMPT_BOX,
+    INFO_SIDEBAR as BET_SIDEBAR,
+    BOTTOM_BOX as PLAYER_BOX,
+    INSET_BOX as AMOUNT_BOX,
+)
 from blackjack.screen import (
     Screen,
     move_cursor,
     clear_to_eol,
     visible_len,
+    render_cards_block,
+    RESET,
+    BOLD_YELLOW,
+    RED,
+    DIM,
 )
-
-SCREEN_COLS = 120
-SCREEN_ROWS = 40
-
-CARD_DEAL_DELAY = 1.0
-
-# --- Region geometry ---
-
-DEALER_BOX = (2, 1, 13, 90)          # row, col, height, width
-DEALER_SIDEBAR = (2, 91, 13, 30)
-
-PROMPT_BOX = (15, 1, 8, 90)
-BET_SIDEBAR = (15, 91, 8, 30)
-
-PLAYER_BOX = (24, 1, 16, 120)
-AMOUNT_BOX = (36, 1, 4, 22)
 
 HAND1_COL_OFFSET = 3
 HAND2_COL_OFFSET = 60
-
-RESET = "\033[0m"
-BOLD_YELLOW = "\033[1;33m"
-RED = "\033[1;31m"
-DIM = "\033[2m"
 
 
 def draw_static_frame(screen: Screen) -> None:
@@ -60,25 +54,6 @@ def draw_static_frame(screen: Screen) -> None:
     screen.draw_box(a_row, a_col, a_h, a_w, title="AMOUNT")
 
 
-def _render_cards_block(screen: Screen, row: int, col: int, cards: list[Card], hide_last: bool, max_width: int) -> None:
-    card_w = 9
-    gap = 2
-    per_row = max(1, (max_width + gap) // (card_w + gap))
-
-    for i, card in enumerate(cards):
-        is_last = i == len(cards) - 1
-        art = render_card(card, face_down=is_last and hide_last)
-
-        line_in_group = i // per_row
-        pos_in_group = i % per_row
-
-        card_col = col + pos_in_group * (card_w + gap)
-        card_row = row + line_in_group * 6
-
-        for line_idx, line in enumerate(art):
-            screen.write_at(card_row + line_idx, card_col, line)
-
-
 def render_dealer_cards(screen: Screen, cards: list[Card], hide_last: bool) -> None:
     row, col, h, w = DEALER_BOX
     interior_col = col + 2
@@ -89,7 +64,7 @@ def render_dealer_cards(screen: Screen, cards: list[Card], hide_last: bool) -> N
         screen.write_at(interior_row, interior_col, "(waiting for cards...)")
         return
 
-    _render_cards_block(screen, interior_row, interior_col, cards, hide_last, interior_w)
+    render_cards_block(screen, interior_row, interior_col, cards, hide_last, interior_w)
 
 
 def render_status(screen: Screen, dealer_hand: Hand, hide_dealer_hole: bool, bet: int, bankroll: int, message: str) -> None:
@@ -146,7 +121,7 @@ def render_player_cards(screen: Screen, hands: list[Hand], active_hand_index: in
 
         screen.write_at(interior_row, base_col, header)
 
-        _render_cards_block(screen, interior_row + 2, base_col, hand.cards, False, sub_col_width)
+        render_cards_block(screen, interior_row + 2, base_col, hand.cards, False, sub_col_width)
 
         total_str = hand.display_total()
         if hand.is_bust():

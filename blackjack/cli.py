@@ -13,6 +13,7 @@ from blackjack.game import (
 )
 from blackjack.table import redraw_table, prompt_in_frame, SCREEN_ROWS
 from blackjack.screen import check_terminal_size, move_cursor, show_cursor
+from blackjack.holdem_cli import run_holdem
 
 
 def prompt_int(prompt_text: str, min_val: int = 0, max_val: int = None) -> int:
@@ -35,20 +36,20 @@ def prompt_nonempty(prompt_text: str) -> str:
         print("Please enter a non-empty value.")
 
 
-def main():
-    print("=== Blackjack Simulator ===\n")
+def prompt_game_choice() -> str:
+    print("\nWhich game would you like to play?")
+    print("  1) Blackjack")
+    print("  2) Ultimate Texas Hold'em")
+    while True:
+        choice = input("Enter 1 or 2: ").strip()
+        if choice == "1":
+            return "blackjack"
+        if choice == "2":
+            return "holdem"
+        print("Please enter 1 or 2.")
 
-    if not check_terminal_size():
-        print(
-            "Your terminal is too small for the table view. "
-            "Please resize it to at least 120 columns x 40 rows and try again."
-        )
-        sys.exit(1)
 
-    name = prompt_nonempty("Your name: ")
-    bankroll = prompt_int(f"Starting bankroll for {name}: $", 1)
-    player = Player(name=name, bankroll=bankroll)
-
+def run_blackjack(player: Player) -> None:
     round_num = 1
 
     while True:
@@ -114,6 +115,28 @@ def main():
         prompt_in_frame("Press Enter for next round...")
 
         round_num += 1
+
+
+def main():
+    print("=== Casino Table Simulator ===\n")
+
+    if not check_terminal_size():
+        print(
+            "Your terminal is too small for the table view. "
+            "Please resize it to at least 120 columns x 40 rows and try again."
+        )
+        sys.exit(1)
+
+    game_choice = prompt_game_choice()
+
+    name = prompt_nonempty("\nYour name: ")
+    bankroll = prompt_int(f"Starting bankroll for {name}: $", 1)
+    player = Player(name=name, bankroll=bankroll)
+
+    if game_choice == "blackjack":
+        run_blackjack(player)
+    else:
+        run_holdem(player)
 
     show_cursor()
     move_cursor(SCREEN_ROWS + 2, 1)

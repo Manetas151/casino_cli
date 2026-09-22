@@ -2,7 +2,16 @@ import re
 import shutil
 import sys
 
+from blackjack.cards import Card
+from blackjack.rendering import render_card
+
 ANSI_RE = re.compile(r"\033\[[0-9;]*m")
+
+RESET = "\033[0m"
+BOLD_YELLOW = "\033[1;33m"
+BOLD_GREEN = "\033[1;32m"
+RED = "\033[1;31m"
+DIM = "\033[2m"
 
 
 def visible_len(text: str) -> int:
@@ -87,3 +96,29 @@ class Screen:
         lines = ["".join(row) for row in self.grid]
         sys.stdout.write("\n".join(lines))
         sys.stdout.flush()
+
+
+def render_cards_block(
+    screen: Screen,
+    row: int,
+    col: int,
+    cards: list[Card],
+    hide_last: bool,
+    max_width: int,
+) -> None:
+    card_w = 9
+    gap = 2
+    per_row = max(1, (max_width + gap) // (card_w + gap))
+
+    for i, card in enumerate(cards):
+        is_last = i == len(cards) - 1
+        art = render_card(card, face_down=is_last and hide_last)
+
+        line_in_group = i // per_row
+        pos_in_group = i % per_row
+
+        card_col = col + pos_in_group * (card_w + gap)
+        card_row = row + line_in_group * 6
+
+        for line_idx, line in enumerate(art):
+            screen.write_at(card_row + line_idx, card_col, line)
