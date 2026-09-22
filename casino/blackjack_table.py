@@ -67,7 +67,9 @@ def render_dealer_cards(screen: Screen, cards: list[Card], hide_last: bool) -> N
     render_cards_block(screen, interior_row, interior_col, cards, hide_last, interior_w)
 
 
-def render_status(screen: Screen, dealer_hand: Hand, hide_dealer_hole: bool, bet: int, bankroll: int, message: str) -> None:
+def render_status(
+    screen: Screen, dealer_hand: Hand, hide_dealer_hole: bool, bet: int, bankroll: int, message: str
+) -> None:
     s_row, s_col, s_h, s_w = DEALER_SIDEBAR
     text_col = s_col + 2
 

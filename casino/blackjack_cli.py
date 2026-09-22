@@ -1,9 +1,12 @@
 import sys
+import time
+import json
+import os
 
 from casino.cards import Deck, Rank
 from casino.hand import Hand
 from casino.player import Player
-from casino.game import (
+from casino.blackjack import (
     deal_initial_hands,
     offer_insurance,
     resolve_insurance,
@@ -11,10 +14,11 @@ from casino.game import (
     play_dealer_hand,
     settle_round,
 )
-from casino.table import redraw_table, prompt_in_frame, SCREEN_ROWS
+from casino.blackjack_table import redraw_table, prompt_in_frame, SCREEN_ROWS
 from casino.screen import check_terminal_size, move_cursor, show_cursor
 from casino.holdem_cli import run_holdem
 from casino.banners import show_banner
+from casino.screen import BOLD_GREEN, RESET
 
 OUTCOME_BANNER = {
     "BLACKJACK_WIN": "win",
@@ -22,6 +26,43 @@ OUTCOME_BANNER = {
     "PUSH": "draw",
     "LOSS": "lose",
 }
+
+PLAYERS_FILE = os.path.join(os.path.dirname(__file__), "players.json")
+
+
+def load_players() -> dict:
+    try:
+        with open(PLAYERS_FILE, "r") as file:
+            data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"players": []}
+
+    if not isinstance(data, dict) or not isinstance(data.get("players"), list):
+        return {"players": []}
+
+    return data
+
+
+def find_saved_bankroll(players: dict, name: str) -> int | None:
+    for entry in players["players"]:
+        if entry.get("name") == name:
+            try:
+                return int(entry.get("money", 0))
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
+def save_player(players: dict, name: str, bankroll: int) -> None:
+    for entry in players["players"]:
+        if entry.get("name") == name:
+            entry["money"] = bankroll
+            break
+    else:
+        players["players"].append({"name": name, "money": bankroll})
+
+    with open(PLAYERS_FILE, "w") as file:
+        json.dump(players, file, indent=4)
 
 
 def prompt_int(prompt_text: str, min_val: int = 0, max_val: int = None) -> int:
@@ -74,7 +115,7 @@ def run_blackjack(player: Player) -> None:
         while bet is None:
             redraw_table(dealer_hand, True, player, message=message)
             try:
-                value = int(prompt_in_frame(f"Bet (bankroll ${player.bankroll}, 0 to stop): $"))
+                value = int(prompt_in_frame(f"{BOLD_GREEN}Bet (bankroll ${player.bankroll}, 0 to stop): ${RESET}"))
                 if value < 0 or value > player.bankroll:
                     message = f"Please enter a value between 0 and {player.bankroll}."
                     continue
@@ -114,6 +155,8 @@ def run_blackjack(player: Player) -> None:
 
         outcomes = settle_round(player, dealer_hand)
 
+        time.sleep(1)
+
         for outcome in outcomes:
             show_banner(OUTCOME_BANNER[outcome])
 
@@ -138,16 +181,28 @@ def main():
         )
         sys.exit(1)
 
-    game_choice = prompt_game_choice()
+    players = load_players()
 
     name = prompt_nonempty("\nYour name: ")
-    bankroll = prompt_int(f"Starting bankroll for {name}: $", 1)
-    player = Player(name=name, bankroll=bankroll)
 
-    if game_choice == "blackjack":
-        run_blackjack(player)
+    saved_bankroll = find_saved_bankroll(players, name)
+
+    if saved_bankroll is not None:
+        print(f"Welcome back, {name}! Loaded bankroll: ${saved_bankroll}")
+        bankroll = saved_bankroll
     else:
-        run_holdem(player)
+        bankroll = prompt_int(f"Starting bankroll for {name}: $", 1)
+
+    player = Player(name=name, bankroll=bankroll)
+    game_choice = prompt_game_choice()
+
+    try:
+        if game_choice == "blackjack":
+            run_blackjack(player)
+        else:
+            run_holdem(player)
+    finally:
+        save_player(players, player.name, player.bankroll)
 
     show_cursor()
     move_cursor(SCREEN_ROWS + 2, 1)

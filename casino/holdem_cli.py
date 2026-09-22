@@ -3,6 +3,7 @@ from casino.player import Player
 from casino.holdem import HoldemState, settle_round
 from casino.holdem_table import redraw_holdem_table, prompt_in_frame, deal_card_with_delay
 from casino.banners import show_banner
+import time
 
 
 def _make_redraw(player: Player, state: HoldemState):
@@ -145,9 +146,14 @@ def run_holdem(player: Player) -> None:
 
         message, dealer_desc, player_desc, outcome = settle_round(player, state)
 
+        redraw(message=message, hide_dealer=state.folded, dealer_desc=dealer_desc, player_desc=player_desc)
+
+        time.sleep(3)
+
         show_banner(outcome)
 
         redraw(message=message, hide_dealer=state.folded, dealer_desc=dealer_desc, player_desc=player_desc)
+
         prompt_in_frame("Press Enter for next round...")
 
         round_num += 1

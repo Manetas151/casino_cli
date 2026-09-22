@@ -12,6 +12,8 @@ BOLD_YELLOW = "\033[1;33m"
 BOLD_GREEN = "\033[1;32m"
 RED = "\033[1;31m"
 DIM = "\033[2m"
+BLINK = "\033[5m"
+BLACK = "\033[30m"
 
 
 def visible_len(text: str) -> int:

@@ -3,7 +3,7 @@ import unittest
 from casino.cards import Card, Deck, Rank, Suit
 from casino.hand import Hand
 from casino.player import Player
-from casino.game import settle_round, play_dealer_hand
+from casino.blackjack import settle_round, play_dealer_hand
 
 
 def make_player(cards, bet=50, bankroll=100):
@@ -17,9 +17,7 @@ class TestSettleRound(unittest.TestCase):
         # Regression test: player busting must always lose, even if the
         # dealer also busts afterward — previously the dealer-bust check
         # ran first and incorrectly turned this into a win.
-        player = make_player(
-            [Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)]
-        )
+        player = make_player([Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)])
         dealer_hand = Hand(
             cards=[Card(Rank.TEN, Suit.DIAMONDS), Card(Rank.KING, Suit.CLUBS), Card(Rank.THREE, Suit.SPADES)]
         )
@@ -35,9 +33,7 @@ class TestSettleRound(unittest.TestCase):
         self.assertEqual(player.wins, 0)
 
     def test_player_bust_dealer_not_bust_is_a_loss(self):
-        player = make_player(
-            [Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)]
-        )
+        player = make_player([Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)])
         dealer_hand = Hand(cards=[Card(Rank.TEN, Suit.DIAMONDS), Card(Rank.EIGHT, Suit.CLUBS)])
 
         outcomes = settle_round(player, dealer_hand)
@@ -77,9 +73,7 @@ class TestSettleRound(unittest.TestCase):
 
 class TestPlayDealerHand(unittest.TestCase):
     def test_dealer_does_not_draw_when_all_player_hands_are_bust(self):
-        player = make_player(
-            [Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)]
-        )
+        player = make_player([Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)])
         dealer_hand = Hand(cards=[Card(Rank.TEN, Suit.DIAMONDS), Card(Rank.FIVE, Suit.CLUBS)])
         deck = Deck.new_shuffled()
         cards_before = len(deck.cards)

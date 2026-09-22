@@ -2,7 +2,7 @@ from collections import deque
 from casino.cards import Deck, Rank
 from casino.hand import Hand
 from casino.player import Player
-from casino.table import deal_card_with_delay, redraw_table, prompt_in_frame
+from casino.blackjack_table import deal_card_with_delay, redraw_table, prompt_in_frame
 
 
 def deal_initial_hands(player: Player, dealer_hand: Hand, deck: Deck):
@@ -87,7 +87,7 @@ def play_player_hand_queue(player: Player, dealer_upcard_is_ace: bool, deck: Dec
                     split_from_aces=(hand.cards[1].rank == Rank.ACE),
                 )
 
-                player.hands[idx:idx + 1] = [h1, h2]
+                player.hands[idx : idx + 1] = [h1, h2]
 
                 deal_card_with_delay(h1, deck, dealer_hand, player, True, active_hand_index=idx)
                 deal_card_with_delay(h2, deck, dealer_hand, player, True, active_hand_index=idx + 1)
