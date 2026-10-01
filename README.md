@@ -12,4 +12,4 @@ No external dependencies needed (Python 3.10+ for `list[Card]`-style type hints)
 python3 -m casino
 ```
 
-You'll be asked which game to play, then for your name and starting bankroll, before the table view takes over.
+After running the command, you'll be asked which game to play, then for your name and starting bankroll, before the table view takes over.
