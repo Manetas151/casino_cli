@@ -1,17 +1,16 @@
 import sys
 import os
 import pygame
+import game_state
 from casino.cards import Deck, Card, Suit, Rank
 from casino.player import Player
 from casino.hand import Hand
 from casino.game import settle_round as blackjack_settle, resolve_insurance
 from casino.holdem import HoldemState, settle_round as holdem_settle
 
-# Φορτώνουμε το δίκτυο
-try:
-    from network import Network
-except ImportError:
-    pass # Σε περίπτωση που κάποιος δεν έχει το network.py ακόμα
+# Φορτώνουμε το δίκτυο και την κατάσταση παιχνιδιού
+from network import Network
+from game_state import GameState
 
 pygame.init()
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
@@ -591,8 +590,10 @@ def run_multiplayer(player, clock):
 
         try:
             game_state = net.send(action_to_send)
-        except:
-            print("Χάθηκε η σύνδεση με τον Server.")
+        except Exception as e:
+            import traceback
+            print(f"Σφάλμα Multiplayer: {e}")
+            traceback.print_exc()  # Αυτό θα τυπώσει το πραγματικό πρόβλημα!
             return "MENU"
 
         screen.fill(DARK_GREEN)
