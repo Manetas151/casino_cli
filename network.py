@@ -2,18 +2,19 @@ import socket
 import pickle
 
 class Network:
-    def __init__(self, bankroll):
+    def __init__(self, player_name, bankroll):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "127.0.0.1" 
+        self.server = "192.168.1.18"  # Μην ξεχάσεις την IP σου!
         self.port = 5555
         self.addr = (self.server, self.port)
-        self.player_id = self.connect(bankroll)
+        self.player_id = self.connect(player_name, bankroll)
 
-    def connect(self, bankroll):
+    def connect(self, player_name, bankroll):
         try:
             self.client.connect(self.addr)
+            # Στέλνουμε το Όνομα και το Bankroll χωρισμένα με άνω-κάτω τελεία
+            self.client.send(str.encode(f"{player_name}:{bankroll}"))
             pid = self.client.recv(2048).decode()
-            self.client.send(str.encode(str(bankroll)))
             return pid
         except socket.error as e:
             print(f"Σφάλμα σύνδεσης: {e}")

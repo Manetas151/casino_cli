@@ -3,7 +3,7 @@ import threading
 import pickle
 from game_state import GameState
 
-HOST = '127.0.0.1' 
+HOST = '192.168.1.18' 
 PORT = 5555
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,15 +17,24 @@ print(f"[*] Ο Server ξεκίνησε. Περιμένει συνδέσεις σ
 
 game = GameState()
 
-def threaded_client(conn, player_id):
-    conn.send(str.encode(str(player_id)))
+def threaded_client(conn):
     try:
-        bankroll_data = conn.recv(2048).decode()
-        starting_bankroll = int(bankroll_data)
-    except:
-        starting_bankroll = 1000 
+        # Παίρνουμε το όνομα και το bankroll
+        init_data = conn.recv(2048).decode().split(":")
+        player_name = init_data[0]
+        starting_bankroll = int(init_data[1]) if len(init_data) > 1 else 1000
         
-    game.add_player(player_id, starting_bankroll)
+        # Στέλνουμε πίσω το όνομα ως επιβεβαίωση ID
+        conn.send(str.encode(player_name))
+    except:
+        conn.close()
+        return
+        
+    # Αν ο παίκτης ΔΕΝ υπάρχει ήδη (νέος παίκτης), τον προσθέτουμε στο τραπέζι
+    if player_name not in game.players:
+        game.add_player(player_name, starting_bankroll)
+    
+    player_id = player_name
     
     while True:
         try:
@@ -35,12 +44,12 @@ def threaded_client(conn, player_id):
             
             action = data.decode('utf-8').strip()
             
-            if action == "START" and game.game_phase == "WAITING":
+            # --- ΕΠΑΝΑΦΟΡΑ ΤΗΣ ΛΟΓΙΚΗΣ ΤΟΥ ΠΑΙΧΝΙΔΙΟΥ ---
+            if "START" in action and game.game_phase == "WAITING":
                 game.start_hand()
             
             elif "ACTION:" in action and game.get_current_player_id() == player_id:
                 try:
-                    # Καθαρισμός του πακέτου από τυχόν κολλημένα "GET" λόγω ταχύτητας
                     idx = action.rfind("ACTION:")
                     clean = action[idx:].replace("GET", "").strip()
                     parts = clean.split(":")
@@ -86,23 +95,31 @@ def threaded_client(conn, player_id):
                 except Exception as e:
                     print(f"Σφάλμα κατά την εκτέλεση της κίνησης: {e}")
                     
-            elif action == "END_HAND":
+            elif "END_HAND" in action:
                 game.game_phase = "WAITING"
-                    
-            conn.sendall(pickle.dumps(game))
+            # ---------------------------------------------
+            
+            data_to_send = pickle.dumps(game)
+            if 'struct' in globals():
+                size_header = struct.pack(">I", len(data_to_send))
+                conn.sendall(size_header + data_to_send)
+            else:
+                conn.sendall(data_to_send)
+                
         except Exception as e:
             break
             
     print(f"[-] Ο Παίκτης {player_id} αποσυνδέθηκε.")
     if player_id in game.players:
-        del game.players[player_id]
-        if len(game.players) < 2:
-            game.game_phase = "WAITING"
+        game.players[player_id]["folded"] = True
+        game.players[player_id]["has_acted"] = True
+        game.next_turn()
     conn.close()
-
-current_player = 0
+    # Add this at the very bottom of server.py
 while True:
     conn, addr = server.accept()
     print(f"[+] Νέα σύνδεση από: {addr}")
-    threading.Thread(target=threaded_client, args=(conn, str(current_player))).start()
-    current_player += 1
+    
+    # Start a new thread for each connected client
+    thread = threading.Thread(target=threaded_client, args=(conn,))
+    thread.start()

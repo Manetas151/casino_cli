@@ -529,7 +529,7 @@ def run_multiplayer(player, clock):
     global SCREEN_WIDTH, SCREEN_HEIGHT, screen
     
     try:
-        net = Network(player.bankroll)
+        net = Network(player.name, player.bankroll) # Στέλνουμε το όνομα!
         my_id = net.player_id
     except:
         print("Ο Server είναι κλειστός!")
@@ -615,7 +615,7 @@ def run_multiplayer(player, clock):
             for pid, p_data in game_state.players.items():
                 color = HIGHLIGHT if pid == game_state.get_current_player_id() else WHITE
                 status = " (Folded)" if p_data.get("folded") else f" (Bet: ${p_data.get('current_bet', 0)})"
-                p_text = font.render(f"P{pid} | ${p_data['bankroll']}{status}", True, color)
+                p_text = font.render(f"{pid} | ${p_data['bankroll']}{status}", True, color)
                 screen.blit(p_text, (SCREEN_WIDTH - 300, y_offset))
                 y_offset += 40
 
@@ -637,12 +637,15 @@ def run_multiplayer(player, clock):
                 if my_cards and not game_state.players[my_id]["folded"]:
                     player_x = SCREEN_WIDTH//2 - (len(my_cards)*90)//2
                     p_lbl = font.render("Your Hole Cards:", True, WHITE)
-                    screen.blit(p_lbl, (player_x, 470))
+                    # ΔΙΟΡΘΩΣΗ: Αλλαγή από 470 σε 320 για να ανέβει το κείμενο
+                    screen.blit(p_lbl, (player_x, 320))
                     for i, card in enumerate(my_cards):
-                        draw_card(screen, card, player_x + (i * 90), 500)
+                        # ΔΙΟΡΘΩΣΗ: Αλλαγή από 500 σε 350 για να ανέβουν οι κάρτες
+                        draw_card(screen, card, player_x + (i * 90), 350)
                 elif game_state.players[my_id]["folded"]:
                     msg = font.render("You Folded.", True, RED)
-                    screen.blit(msg, (SCREEN_WIDTH//2 - msg.get_width()//2, 500))
+                    # ΔΙΟΡΘΩΣΗ: Αλλαγή από 500 σε 350 
+                    screen.blit(msg, (SCREEN_WIDTH//2 - msg.get_width()//2, 350))
 
             if game_state.game_phase == "WAITING":
                 btn_start.draw(screen)
@@ -665,37 +668,57 @@ def run_multiplayer(player, clock):
 
 def run_setup(clock):
     global SCREEN_WIDTH, SCREEN_HEIGHT, screen
-    input_text = ""  
+    input_name = ""
+    input_bankroll = ""
+    step = "NAME"  # Ξεκινάμε ζητώντας το όνομα
     
     while True:
-        btn_start = Button(SCREEN_WIDTH//2 - 200, SCREEN_HEIGHT//2 + 100, 400, 80, "Confirm & Start", GOLD)
+        btn_text = "Next" if step == "NAME" else "Confirm & Start"
+        btn_start = Button(SCREEN_WIDTH//2 - 200, SCREEN_HEIGHT//2 + 100, 400, 80, btn_text, GOLD)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: return "QUIT", 0
+            if event.type == pygame.QUIT: return "QUIT", "Player", 0
             elif event.type == pygame.VIDEORESIZE:
                 SCREEN_WIDTH, SCREEN_HEIGHT = event.w, event.h
                 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if btn_start.is_clicked(event.pos):
-                    final_amount = int(input_text) if input_text else 0
-                    if final_amount > 0: return "MENU", final_amount
+                    if step == "NAME" and input_name:
+                        step = "BANKROLL"
+                    elif step == "BANKROLL" and input_bankroll:
+                        return "MENU", input_name, int(input_bankroll)
+                        
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE: input_text = input_text[:-1]
+                if event.key == pygame.K_BACKSPACE: 
+                    if step == "NAME": input_name = input_name[:-1]
+                    else: input_bankroll = input_bankroll[:-1]
                 elif event.key == pygame.K_RETURN:
-                    final_amount = int(input_text) if input_text else 0
-                    if final_amount > 0: return "MENU", final_amount
-                elif event.unicode.isnumeric():
-                    if len(input_text) < 7: input_text += event.unicode
+                    if step == "NAME" and input_name:
+                        step = "BANKROLL"
+                    elif step == "BANKROLL" and input_bankroll:
+                        return "MENU", input_name, int(input_bankroll)
+                else:
+                    if step == "NAME" and event.unicode.isalnum() and len(input_name) < 10:
+                        input_name += event.unicode
+                    elif step == "BANKROLL" and event.unicode.isnumeric() and len(input_bankroll) < 7:
+                        input_bankroll += event.unicode
 
         screen.fill(TABLE_COLOR)
-        title = large_font.render("ENTER STARTING BANKROLL", True, WHITE)
+        
+        # Αλλαγή τίτλου ανάλογα με το βήμα
+        title_text = "ENTER YOUR NAME" if step == "NAME" else "ENTER STARTING BANKROLL"
+        title = large_font.render(title_text, True, WHITE)
         screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, int(SCREEN_HEIGHT * 0.2)))
         
         input_box = pygame.Rect(SCREEN_WIDTH//2 - 150, SCREEN_HEIGHT//2 - 35, 300, 70)
         pygame.draw.rect(screen, WHITE, input_box, border_radius=5)
         pygame.draw.rect(screen, BLACK, input_box, width=3, border_radius=5)
         
-        text_surf = large_font.render(f"${input_text}" if input_text else "$", True, BLACK)
+        # Εμφάνιση κειμένου ανάλογα με το βήμα (με το σύμβολο $ για τα λεφτά)
+        display_text = input_name if step == "NAME" else (f"${input_bankroll}" if input_bankroll else "$")
+        text_surf = large_font.render(display_text, True, BLACK)
+        
         screen.blit(text_surf, text_surf.get_rect(center=input_box.center))
         btn_start.draw(screen)
         pygame.display.flip()
@@ -709,9 +732,9 @@ def main():
     current_scene = "SETUP"
     while current_scene != "QUIT":
         if current_scene == "SETUP":
-            current_scene, start_amount = run_setup(clock)
+            current_scene, p_name, start_amount = run_setup(clock)
             if current_scene != "QUIT":
-                player = Player(name="Player", bankroll=start_amount)
+                player = Player(name=p_name, bankroll=start_amount)
         elif current_scene == "MENU":
             current_scene = run_menu(player, clock)
         elif current_scene == "BLACKJACK":
